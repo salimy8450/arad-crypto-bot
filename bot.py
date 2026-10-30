@@ -17,29 +17,36 @@ SYMBOLS = [
 ]
 
 def get(url, params=None):
-    response = requests.get(url, params=params, timeout=20)
+    response = requests.get(url, params=params, timeout=30)
     response.raise_for_status()
     data = response.json()
+
     if not data.get("ok", True):
         raise RuntimeError(str(data))
+
     return data
 
 def ema(values, period):
     if len(values) < period:
         return None
+
     result = sum(values[:period]) / period
     k = 2 / (period + 1)
+
     for value in values[period:]:
         result = value * k + result * (1 - k)
+
     return result
 
 def rsi(values, period=14):
     if len(values) <= period:
         return None
+
     changes = [
         values[i] - values[i - 1]
         for i in range(1, len(values))
     ]
+
     gains = [max(x, 0) for x in changes]
     losses = [max(-x, 0) for x in changes]
 
@@ -52,14 +59,22 @@ def rsi(values, period=14):
 
     if avg_loss == 0:
         return 100
+
     return 100 - (100 / (1 + avg_gain / avg_loss))
 
 def candles(symbol, interval):
     raw = get(
         BINANCE + "/api/v3/klines",
-        {"symbol": symbol, "interval": interval, "limit": 100}
+        {
+            "symbol": symbol,
+            "interval": interval,
+            "limit": 100
+        }
     )
-    raw = raw[:-1]  # حذف کندل باز
+
+    # حذف کندل باز
+    raw = raw[:-1]
+
     return [
         {
             "o": float(x[1]),
@@ -90,9 +105,11 @@ def analyze(symbol):
         return None
 
     true_ranges = []
+
     for i in range(1, len(candles_15m)):
         current = candles_15m[i]
         previous_close = candles_15m[i - 1]["c"]
+
         true_ranges.append(max(
             current["h"] - current["l"],
             abs(current["h"] - previous_close),
@@ -100,11 +117,19 @@ def analyze(symbol):
         ))
 
     atr = sum(true_ranges[-14:]) / 14
+
     if atr <= 0:
         return None
 
-    avg_volume = sum(c["v"] for c in candles_15m[-15:-1]) / 14
-    volume_ratio = candles_15m[-1]["v"] / avg_volume if avg_volume else 0
+    avg_volume = sum(
+        c["v"] for c in candles_15m[-15:-1]
+    ) / 14
+
+    volume_ratio = (
+        candles_15m[-1]["v"] / avg_volume
+        if avg_volume else 0
+    )
+
     price = x[-1]
 
     long_score = 0
@@ -145,9 +170,13 @@ def analyze(symbol):
     score = max(long_score, short_score)
 
     aligned = (
-        side == "LONG" and e21 > e50 and e21h > e50h
+        side == "LONG"
+        and e21 > e50
+        and e21h > e50h
     ) or (
-        side == "SHORT" and e21 < e50 and e21h < e50h
+        side == "SHORT"
+        and e21 < e50
+        and e21h < e50h
     )
 
     if not aligned or score < 75:
@@ -155,6 +184,7 @@ def analyze(symbol):
 
     if side == "LONG" and r15 >= 75:
         return None
+
     if side == "SHORT" and r15 <= 25:
         return None
 
@@ -162,10 +192,14 @@ def analyze(symbol):
 
     if side == "LONG":
         stop_loss = price - risk
-        targets = [price + risk * k for k in (1, 1.5, 2, 3)]
+        targets = [
+            price + risk * k for k in (1, 1.5, 2, 3)
+        ]
     else:
         stop_loss = price + risk
-        targets = [price - risk * k for k in (1, 1.5, 2, 3)]
+        targets = [
+            price - risk * k for k in (1, 1.5, 2, 3)
+        ]
 
     return (
         side, score, price, stop_loss,
@@ -178,11 +212,17 @@ def fmt(value):
 def send_message(chat_id, message):
     response = requests.post(
         TG + "/sendMessage",
-        data={"chat_id": chat_id, "text": message},
-        timeout=20
+        data={
+            "chat_id": chat_id,
+            "text": message
+        },
+        timeout=30
     )
+
     response.raise_for_status()
+
     result = response.json()
+
     if not result.get("ok"):
         raise RuntimeError(str(result))
 
@@ -190,51 +230,71 @@ def main():
     print("Arad scanner started...")
     print("UTC time:", datetime.now(timezone.utc).isoformat())
 
-    # دریافت شناسه گفتگوی تلگرام
+    # حذف Webhook قبلی بدون پاک کردن پیام‌های منتظر
+    webhook = get(
+        TG + "/deleteWebhook",
+        {"drop_pending_updates": "false"}
+    )
+
+    print("Webhook removed:", webhook.get("ok"))
+
+    # دریافت پیام‌های تلگرام
     updates = get(TG + "/getUpdates").get("result", [])
+
     chat_id = None
 
     for update in reversed(updates):
         message = update.get("message") or update.get("edited_message")
+
         if message and message.get("chat", {}).get("type") == "private":
             chat_id = message["chat"]["id"]
             break
 
     if chat_id is None:
         raise RuntimeError(
-            "Chat ID not found. Open the bot in Telegram and send /start."
+            "Chat ID not found. Open the bot and send /start."
         )
 
+    print("Telegram chat found.")
+
+    # اسکن ارزها
     signals = []
 
     for symbol in SYMBOLS:
         try:
             signal = analyze(symbol)
+
             if signal:
                 signals.append((symbol, signal))
                 print(symbol, "signal found")
             else:
                 print(symbol, "no strong signal")
+
         except Exception as error:
             print(symbol, "scan error:", str(error))
 
         time.sleep(0.3)
 
+    # اگر سیگنال قوی پیدا نشد
     if not signals:
         send_message(
             chat_id,
-            "Arad Crypto Bot\n"
+            "🤖 ARAD CRYPTO BOT\n\n"
             "اسکن ۸ ارز انجام شد.\n"
-            "فعلاً سیگنال قوی و هم‌جهت در تایم‌فریم‌های ۱۵ دقیقه و ۱ ساعت پیدا نشد."
+            "فعلاً سیگنال قوی و هم‌جهت در تایم‌فریم‌های "
+            "۱۵ دقیقه و ۱ ساعت پیدا نشد."
         )
+
         print("Scan completed: no strong signals.")
         return
 
+    # ارسال سیگنال‌ها
     for symbol, signal in signals:
+
         side, score, price, sl, targets, r15, r1h, vr = signal
 
         message = (
-            f"🚨 ARAD CRYPTO SIGNAL\n"
+            f"🚨 ARAD CRYPTO SIGNAL\n\n"
             f"{symbol} | {side}\n"
             f"Score: {score}/100\n\n"
             f"Entry: {fmt(price)}\n"
@@ -251,6 +311,7 @@ def main():
         )
 
         send_message(chat_id, message)
+        print(symbol, "message sent")
         time.sleep(1)
 
     print("Scan completed. Signals sent:", len(signals))
