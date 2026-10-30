@@ -1,15 +1,31 @@
+
 name: Arad Crypto Scanner
 
 'on':
+  schedule:
+    - cron: '*/5 * * * *'
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   scan:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -r requirements.txt
-      - run: python -m py_compile bot.py
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Run Arad Scanner
+        run: python bot.py
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
