@@ -1,4 +1,3 @@
-
 name: Arad Crypto Scanner
 
 on:
@@ -23,9 +22,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install requirements
-        run: run: pip install requests python-telegram-bot
+        run: pip install -r requirements.txt
 
-      - name: Run scanner
-        run: python bot.py
-        env:
-          
+      - name: Check Python code
+        run: python -m py_compile bot.py
