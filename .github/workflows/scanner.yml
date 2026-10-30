@@ -23,7 +23,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install requirements
-        run: pip install requests
+        run: run: pip install requests python-telegram-bot
 
       - name: Run scanner
         run: python bot.py
