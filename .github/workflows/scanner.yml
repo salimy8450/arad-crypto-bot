@@ -28,4 +28,4 @@ jobs:
       - name: Run scanner
         run: python bot.py
         env:
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          
