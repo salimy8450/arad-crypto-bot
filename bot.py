@@ -1,118 +1,259 @@
 
-import os, time, requests
+import os
+import time
+import requests
 from datetime import datetime, timezone
 
 TOKEN = os.getenv("BOT_TOKEN")
 if not TOKEN:
     raise RuntimeError("BOT_TOKEN secret is missing")
+
 TG = f"https://api.telegram.org/bot{TOKEN}"
 BINANCE = "https://api.binance.com"
-SYMBOLS = ["DOGEUSDT","SHIBUSDT","PEPEUSDT","BONKUSDT","WIFUSDT","FLOKIUSDT","BOMEUSDT","MEMEUSDT"]
+
+SYMBOLS = [
+    "DOGEUSDT", "SHIBUSDT", "PEPEUSDT", "BONKUSDT",
+    "WIFUSDT", "FLOKIUSDT", "BOMEUSDT", "MEMEUSDT"
+]
 
 def get(url, params=None):
-    r = requests.get(url, params=params, timeout=20)
-    r.raise_for_status()
-    return r.json()
+    response = requests.get(url, params=params, timeout=20)
+    response.raise_for_status()
+    data = response.json()
+    if not data.get("ok", True):
+        raise RuntimeError(str(data))
+    return data
 
-def ema(a, n):
-    if len(a) < n: return None
-    v = sum(a[:n]) / n
-    k = 2 / (n + 1)
-    for x in a[n:]: v = x*k + v*(1-k)
-    return v
+def ema(values, period):
+    if len(values) < period:
+        return None
+    result = sum(values[:period]) / period
+    k = 2 / (period + 1)
+    for value in values[period:]:
+        result = value * k + result * (1 - k)
+    return result
 
-def rsi(a, n=14):
-    if len(a) <= n: return None
-    changes = [a[i]-a[i-1] for i in range(1,len(a))]
-    gains = [max(x,0) for x in changes]
-    losses = [max(-x,0) for x in changes]
-    ag, al = sum(gains[:n])/n, sum(losses[:n])/n
-    for i in range(n,len(gains)):
-        ag = (ag*(n-1)+gains[i])/n
-        al = (al*(n-1)+losses[i])/n
-    return 100 if al == 0 else 100-100/(1+ag/al)
+def rsi(values, period=14):
+    if len(values) <= period:
+        return None
+    changes = [
+        values[i] - values[i - 1]
+        for i in range(1, len(values))
+    ]
+    gains = [max(x, 0) for x in changes]
+    losses = [max(-x, 0) for x in changes]
+
+    avg_gain = sum(gains[:period]) / period
+    avg_loss = sum(losses[:period]) / period
+
+    for i in range(period, len(gains)):
+        avg_gain = (avg_gain * (period - 1) + gains[i]) / period
+        avg_loss = (avg_loss * (period - 1) + losses[i]) / period
+
+    if avg_loss == 0:
+        return 100
+    return 100 - (100 / (1 + avg_gain / avg_loss))
 
 def candles(symbol, interval):
-    raw = get(BINANCE+"/api/v3/klines", {"symbol":symbol,"interval":interval,"limit":100})[:-1]
-    return [{"o":float(x[1]),"h":float(x[2]),"l":float(x[3]),"c":float(x[4]),"v":float(x[5]),"t":int(x[6])} for x in raw]
+    raw = get(
+        BINANCE + "/api/v3/klines",
+        {"symbol": symbol, "interval": interval, "limit": 100}
+    )
+    raw = raw[:-1]  # حذف کندل باز
+    return [
+        {
+            "o": float(x[1]),
+            "h": float(x[2]),
+            "l": float(x[3]),
+            "c": float(x[4]),
+            "v": float(x[5])
+        }
+        for x in raw
+    ]
 
 def analyze(symbol):
-    a, b = candles(symbol,"15m"), candles(symbol,"1h")
-    x, y = [z["c"] for z in a], [z["c"] for z in b]
-    e21,e50,e21h,e50h = ema(x,21),ema(x,50),ema(y,21),ema(y,50)
-    r15,r1h = rsi(x),rsi(y)
-    if None in (e21,e50,e21h,e50h,r15,r1h): return None
-    trs=[]
-    for i in range(1,len(a)):
-        z,p=a[i],a[i-1]["c"]
-        trs.append(max(z["h"]-z["l"],abs(z["h"]-p),abs(z["l"]-p)))
-    atr=sum(trs[-14:])/14
-    if atr <= 0: return None
-    avgvol=sum(z["v"] for z in a[-15:-1])/14
-    vr=a[-1]["v"]/avgvol if avgvol else 0
-    price=x[-1]
-    long=short=0
-    if e21>e50: long+=25
-    else: short+=25
-    if e21h>e50h: long+=25
-    else: short+=25
-    if price>e21: long+=15
-    else: short+=15
-    if 50<=r15<=68: long+=15
-    elif 32<=r15<=50: short+=15
-    if r1h>50: long+=10
-    elif r1h<50: short+=10
-    if vr>=1.2:
-        if a[-1]["c"]>a[-1]["o"]: long+=10
-        elif a[-1]["c"]<a[-1]["o"]: short+=10
-    side="LONG" if long>=short else "SHORT"
-    score=max(long,short)
-    aligned=(side=="LONG" and e21>e50 and e21h>e50h) or (side=="SHORT" and e21<e50 and e21h<e50h)
-    if not aligned or score<75 or (side=="LONG" and r15>=75) or (side=="SHORT" and r15<=25): return None
-    risk=atr*1.5
-    sl=price-risk if side=="LONG" else price+risk
-    tps=[price+risk*k if side=="LONG" else price-risk*k for k in (1,1.5,2,3)]
-    return (side,score,price,sl,tps,r15,r1h,vr)
+    candles_15m = candles(symbol, "15m")
+    candles_1h = candles(symbol, "1h")
 
-def fmt(x): return f"{x:.8f}".rstrip("0").rstrip(".")
+    x = [c["c"] for c in candles_15m]
+    y = [c["c"] for c in candles_1h]
+
+    e21 = ema(x, 21)
+    e50 = ema(x, 50)
+    e21h = ema(y, 21)
+    e50h = ema(y, 50)
+
+    r15 = rsi(x)
+    r1h = rsi(y)
+
+    if None in (e21, e50, e21h, e50h, r15, r1h):
+        return None
+
+    true_ranges = []
+    for i in range(1, len(candles_15m)):
+        current = candles_15m[i]
+        previous_close = candles_15m[i - 1]["c"]
+        true_ranges.append(max(
+            current["h"] - current["l"],
+            abs(current["h"] - previous_close),
+            abs(current["l"] - previous_close)
+        ))
+
+    atr = sum(true_ranges[-14:]) / 14
+    if atr <= 0:
+        return None
+
+    avg_volume = sum(c["v"] for c in candles_15m[-15:-1]) / 14
+    volume_ratio = candles_15m[-1]["v"] / avg_volume if avg_volume else 0
+    price = x[-1]
+
+    long_score = 0
+    short_score = 0
+
+    if e21 > e50:
+        long_score += 25
+    else:
+        short_score += 25
+
+    if e21h > e50h:
+        long_score += 25
+    else:
+        short_score += 25
+
+    if price > e21:
+        long_score += 15
+    else:
+        short_score += 15
+
+    if 50 <= r15 <= 68:
+        long_score += 15
+    elif 32 <= r15 <= 50:
+        short_score += 15
+
+    if r1h > 50:
+        long_score += 10
+    elif r1h < 50:
+        short_score += 10
+
+    if volume_ratio >= 1.2:
+        if candles_15m[-1]["c"] > candles_15m[-1]["o"]:
+            long_score += 10
+        elif candles_15m[-1]["c"] < candles_15m[-1]["o"]:
+            short_score += 10
+
+    side = "LONG" if long_score >= short_score else "SHORT"
+    score = max(long_score, short_score)
+
+    aligned = (
+        side == "LONG" and e21 > e50 and e21h > e50h
+    ) or (
+        side == "SHORT" and e21 < e50 and e21h < e50h
+    )
+
+    if not aligned or score < 75:
+        return None
+
+    if side == "LONG" and r15 >= 75:
+        return None
+    if side == "SHORT" and r15 <= 25:
+        return None
+
+    risk = atr * 1.5
+
+    if side == "LONG":
+        stop_loss = price - risk
+        targets = [price + risk * k for k in (1, 1.5, 2, 3)]
+    else:
+        stop_loss = price + risk
+        targets = [price - risk * k for k in (1, 1.5, 2, 3)]
+
+    return (
+        side, score, price, stop_loss,
+        targets, r15, r1h, volume_ratio
+    )
+
+def fmt(value):
+    return f"{value:.8f}".rstrip("0").rstrip(".")
+
+def send_message(chat_id, message):
+    response = requests.post(
+        TG + "/sendMessage",
+        data={"chat_id": chat_id, "text": message},
+        timeout=20
+    )
+    response.raise_for_status()
+    result = response.json()
+    if not result.get("ok"):
+        raise RuntimeError(str(result))
 
 def main():
-    # Workflow checks every 5 minutes; notifications are sent only each 15 minutes.
-    if datetime.now(timezone.utc).minute % 15 != 0:
-        print("Not an alert slot.")
-        return
-    updates=get(TG+"/getUpdates").get("result",[])
-    chat=None
-    for u in reversed(updates):
-        m=u.get("message") or u.get("edited_message")
-        if m and m.get("chat",{}).get("type")=="private":
-            chat=m["chat"]["id"]; break
-    if chat is None:
-        print("Open your Telegram bot and press Start first.")
-        return
-    signals=[]
+    print("Arad scanner started...")
+    print("UTC time:", datetime.now(timezone.utc).isoformat())
+
+    # دریافت شناسه گفتگوی تلگرام
+    updates = get(TG + "/getUpdates").get("result", [])
+    chat_id = None
+
+    for update in reversed(updates):
+        message = update.get("message") or update.get("edited_message")
+        if message and message.get("chat", {}).get("type") == "private":
+            chat_id = message["chat"]["id"]
+            break
+
+    if chat_id is None:
+        raise RuntimeError(
+            "Chat ID not found. Open the bot in Telegram and send /start."
+        )
+
+    signals = []
+
     for symbol in SYMBOLS:
         try:
-            s=analyze(symbol)
-            if s: signals.append((symbol,s))
-        except Exception as e:
-            print(symbol, "scan error:", e)
-        time.sleep(.25)
+            signal = analyze(symbol)
+            if signal:
+                signals.append((symbol, signal))
+                print(symbol, "signal found")
+            else:
+                print(symbol, "no strong signal")
+        except Exception as error:
+            print(symbol, "scan error:", str(error))
+
+        time.sleep(0.3)
+
     if not signals:
-        requests.post(TG+"/sendMessage",data={"chat_id":chat,"text":"Arad Crypto Bot: اسکن انجام شد؛ فعلاً سیگنال قوی و هم‌جهت پیدا نشد."},timeout=20).raise_for_status()
+        send_message(
+            chat_id,
+            "Arad Crypto Bot\n"
+            "اسکن ۸ ارز انجام شد.\n"
+            "فعلاً سیگنال قوی و هم‌جهت در تایم‌فریم‌های ۱۵ دقیقه و ۱ ساعت پیدا نشد."
+        )
+        print("Scan completed: no strong signals.")
         return
-    for symbol,s in signals:
-        side,score,price,sl,tps,r15,r1h,vr=s
-        msg=(f"🚨 ARAD CRYPTO SIGNAL\n{symbol} | {side} | Score {score}/100\n"
-             f"Entry: {fmt(price)}\nTP1: {fmt(tps[0])}\nTP2: {fmt(tps[1])}\n"
-             f"TP3: {fmt(tps[2])}\nTP4: {fmt(tps[3])}\nSL: {fmt(sl)}\n"
-             f"RSI 15m: {r15:.1f} | RSI 1h: {r1h:.1f} | Volume: {vr:.2f}x\n"
-             "ATR-based levels; leverage not included. Confirm before trading.")
-        r=requests.post(TG+"/sendMessage",data={"chat_id":chat,"text":msg},timeout=20)
-        r.raise_for_status()
+
+    for symbol, signal in signals:
+        side, score, price, sl, targets, r15, r1h, vr = signal
+
+        message = (
+            f"🚨 ARAD CRYPTO SIGNAL\n"
+            f"{symbol} | {side}\n"
+            f"Score: {score}/100\n\n"
+            f"Entry: {fmt(price)}\n"
+            f"TP1: {fmt(targets[0])}\n"
+            f"TP2: {fmt(targets[1])}\n"
+            f"TP3: {fmt(targets[2])}\n"
+            f"TP4: {fmt(targets[3])}\n"
+            f"SL: {fmt(sl)}\n\n"
+            f"RSI 15m: {r15:.1f}\n"
+            f"RSI 1h: {r1h:.1f}\n"
+            f"Volume: {vr:.2f}x\n\n"
+            f"ATR-based levels. Leverage not included.\n"
+            f"قبل از ورود، شرایط بازار را بررسی کن."
+        )
+
+        send_message(chat_id, message)
         time.sleep(1)
-    print("Sent",len(signals),"signal(s).")
 
-if __name__=="__main__":
+    print("Scan completed. Signals sent:", len(signals))
+
+if __name__ == "__main__":
     main()
-
