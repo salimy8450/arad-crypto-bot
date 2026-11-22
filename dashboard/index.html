@@ -59,7 +59,10 @@ async function detail(chain,address){
  }catch(e){document.getElementById('detailbody').textContent='خطا: '+e.message}
 }
 function closeDetail(){document.getElementById('modal').classList.remove('show')}
-async function sendAlerts(){\n try{const r=await fetch('/api/alerts/scan',{method:'POST'});const d=await r.json();if(!r.ok)throw Error(d.detail||'خطا');document.getElementById('status').textContent='هشدارهای ارسال‌شده: '+d.alerts_sent+' · فقط داده زنده؛ موارد آزمایشی ارسال نمی‌شوند.';}catch(e){document.getElementById('status').textContent='ارسال هشدار ناموفق: '+e.message;}\n}\nasync function addWatch(chain,address,name,symbol){
+async function sendAlerts(){
+ try{const r=await fetch('/api/alerts/scan',{method:'POST'});const d=await r.json();if(!r.ok)throw Error(d.detail||'خطا');document.getElementById('status').textContent='هشدارهای ارسال‌شده: '+d.alerts_sent+' · فقط داده زنده؛ موارد آزمایشی ارسال نمی‌شوند.';}catch(e){document.getElementById('status').textContent='ارسال هشدار ناموفق: '+e.message;}
+}
+async function addWatch(chain,address,name,symbol){
  const body={chain:decodeURIComponent(chain),contract_address:decodeURIComponent(address),name:decodeURIComponent(name),symbol:decodeURIComponent(symbol)};
  const r=await fetch('/api/watchlist',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
  if(r.ok){document.getElementById('status').textContent='به واچ‌لیست اضافه شد.';loadWatch()}else alert('ذخیره انجام نشد');
