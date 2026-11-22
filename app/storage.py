@@ -1,12 +1,16 @@
-"""Small SQLite persistence for personal watchlists and alert de-duplication."""
+"""SQLite persistence; set ARAD_DB_PATH to a mounted persistent-disk path in production."""
+import os
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path("arad_meme_hunter.db")
+DB_PATH = Path(os.getenv("ARAD_DB_PATH", "arad_meme_hunter.db"))
 
 def connect():
-    db = sqlite3.connect(DB_PATH)
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    db = sqlite3.connect(DB_PATH, timeout=20)
     db.row_factory = sqlite3.Row
+    db.execute("PRAGMA journal_mode=WAL")
+    db.execute("PRAGMA busy_timeout=20000")
     db.execute("""CREATE TABLE IF NOT EXISTS watchlist (
         chain TEXT NOT NULL, contract_address TEXT NOT NULL, name TEXT, symbol TEXT,
         added_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
