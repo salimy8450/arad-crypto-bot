@@ -137,12 +137,12 @@ async def alert_scan():
     for r in rows:
         if r.get("is_mock") or r["pump_score"]<cfg.strong_pump_score or alert_seen(r["chain"],r["contract_address"]):
             continue
-        msg=(f"⚡ ARAD STRONG MOMENTUM WATCH\\n{r['name']} ({r['symbol']})\\n"
-             f"Network: {r['chain']}\\nPump score: {r['pump_score']}/10\\n"
-             f"Market cap: ${float(r.get('market_cap_usd') or r.get('fdv_usd') or 0):,.0f}\\n"
-             f"Liquidity: ${float(r.get('liquidity_usd') or 0):,.0f}\\n"
-             f"Ourbit listing: UNVERIFIED | Contract security: UNVERIFIED\\n"
-             f"{r['contract_address']}\\nPAPER MODE — no trade executed.")
+        msg=(f"⚡ ARAD STRONG MOMENTUM WATCH\n{r['name']} ({r['symbol']})\n"
+             f"Network: {r['chain']}\nPump score: {r['pump_score']}/10\n"
+             f"Market cap: ${float(r.get('market_cap_usd') or r.get('fdv_usd') or 0):,.0f}\n"
+             f"Liquidity: ${float(r.get('liquidity_usd') or 0):,.0f}\n"
+             f"Ourbit listing: UNVERIFIED | Contract security: UNVERIFIED\n"
+             f"{r['contract_address']}\nPAPER MODE — no trade executed.")
         if await send_telegram(cfg.telegram_bot_token,cfg.telegram_chat_id,msg):
             mark_alert(r["chain"],r["contract_address"]); sent.append(r["contract_address"])
     return {"alerts_sent":len(sent),"contracts":sent,"paper_mode":True,
