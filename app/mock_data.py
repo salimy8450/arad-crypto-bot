@@ -1,0 +1,11 @@
+"""Clearly fictional fixtures for UI and API testing; never presented as live market data."""
+from datetime import datetime, timezone
+
+def mock_tokens():
+    now = int(datetime.now(timezone.utc).timestamp() * 1000)
+    return [
+        {"chain":"solana","name":"Mochi Rocket","symbol":"MOCHI","contract_address":"MOCHI_DEMO_SOLANA_001","pair_address":"DEMO_PAIR_001","price_usd":"0.00042","market_cap_usd":210000,"fdv_usd":420000,"cap_metric":"market_cap","liquidity_usd":82000,"volume_24h_usd":196000,"change_24h_pct":34.2,"buys_24h":1820,"sells_24h":910,"pair_created_at":now-86400000*8,"dex_url":"https://dexscreener.com/","holder_count":None,"holder_growth_pct":None,"ourbit_listed":None,"data_source":"MOCK","is_mock":True},
+        {"chain":"base","name":"Degen Pigeon","symbol":"PIGEON","contract_address":"0x000000000000000000000000000000000000dEa1","pair_address":"DEMO_PAIR_002","price_usd":"0.0048","market_cap_usd":390000,"fdv_usd":470000,"cap_metric":"market_cap","liquidity_usd":65000,"volume_24h_usd":245000,"change_24h_pct":18.5,"buys_24h":1200,"sells_24h":840,"pair_created_at":now-86400000*14,"dex_url":"https://dexscreener.com/","holder_count":None,"holder_growth_pct":None,"ourbit_listed":None,"data_source":"MOCK","is_mock":True},
+        {"chain":"bsc","name":"Banana Comet","symbol":"BCOMET","contract_address":"0x000000000000000000000000000000000000bA02","pair_address":"DEMO_PAIR_003","price_usd":"0.000091","market_cap_usd":125000,"fdv_usd":180000,"cap_metric":"market_cap","liquidity_usd":54000,"volume_24h_usd":88000,"change_24h_pct":-3.2,"buys_24h":460,"sells_24h":510,"pair_created_at":now-86400000*3,"dex_url":"https://dexscreener.com/","holder_count":None,"holder_growth_pct":None,"ourbit_listed":None,"data_source":"MOCK","is_mock":True},
+        {"chain":"ethereum","name":"Tiny Wizard","symbol":"WIZ","contract_address":"0x000000000000000000000000000000000000cA04","pair_address":"DEMO_PAIR_004","price_usd":"0.018","market_cap_usd":480000,"fdv_usd":490000,"cap_metric":"market_cap","liquidity_usd":51000,"volume_24h_usd":160000,"change_24h_pct":61.0,"buys_24h":980,"sells_24h":300,"pair_created_at":now-86400000*20,"dex_url":"https://dexscreener.com/","holder_count":None,"holder_growth_pct":None,"ourbit_listed":None,"data_source":"MOCK","is_mock":True},
+    ]
