@@ -1,1 +1,16 @@
-services:\n  - type: web\n    name: arad-meme-hunter-pro\n    runtime: python\n    buildCommand: pip install -r requirements.txt\n    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT\n    healthCheckPath: /api/health\n    envVars:\n      - key: MOCK_DATA_ENABLED\n        value: true\n      - key: MAX_MARKET_CAP_USD\n        value: 500000\n      - key: MIN_LIQUIDITY_USD\n        value: 50000\n      - key: STRONG_PUMP_SCORE\n        value: 7.5\n
+services:
+  - type: web
+    name: arad-meme-hunter-pro
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: MOCK_DATA_ENABLED
+        value: true
+      - key: MAX_MARKET_CAP_USD
+        value: 500000
+      - key: MIN_LIQUIDITY_USD
+        value: 50000
+      - key: STRONG_PUMP_SCORE
+        value: 7.5
