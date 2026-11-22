@@ -1,106 +1,154 @@
 # ARAD MEME HUNTER PRO
 
-سامانه‌ی کشف و پایش توکن‌های پرریسک با تمرکز بر میم‌کوین‌ها؛ در این نسخه تمام عملیات **فقط خواندنی (Paper Mode)** است و هیچ کیف‌پول، امضای تراکنش یا سفارش معاملاتی وجود ندارد.
+سامانه پایش کاندیداهای توکن در شبکه‌های Solana، Base، BNB Chain و Ethereum. این پروژه **فقط خواندنی / Paper Mode** است و کیف‌پول، امضای تراکنش یا قابلیت خریدوفروش ندارد.
 
-## فناوری و معماری
-- Python 3.11+ و FastAPI برای API و سرویس وب
-- داشبورد واکنش‌گرا با HTML/CSS/JavaScript بدون نیاز به build frontend
-- DexScreener API برای کشف اولیه جفت‌ارزها و داده بازار
-- SQLite برای Watchlist و جلوگیری از هشدار تکراری
-- Telegram Bot API برای ارسال هشدار اختیاری
-- pytest برای تست امتیازدهی
+## معماری
+- Python 3.12 + FastAPI
+- داشبورد واکنش‌گرا HTML/CSS/JavaScript
+- DexScreener API برای فید اولیه توکن‌ها و جفت‌ارزها
+- SQLite برای واچ‌لیست و جلوگیری از هشدار تکراری
+- Telegram Bot API از طریق Webhook امن
+- اسکن خودکار هشدارها هر ۵ دقیقه (در زمان فعال بودن یک نمونه سرویس)
+- Render Web Service + Persistent Disk
 
-## قابلیت‌های فعلی
-- شبکه‌های Solana، Base، BNB Chain و Ethereum
-- سقف مارکت‌کپ/FDV برابر 500,000 دلار و حداقل نقدینگی 50,000 دلار
-- جستجو با نام، نماد یا آدرس قرارداد
-- مرتب‌سازی بر اساس امتیاز مومنتوم، حجم، مارکت‌کپ، نقدینگی و تغییر قیمت
-- صفحه جزئیات API هر توکن، Watchlist پایدار و حذف از Watchlist
-- هشدار تلگرام برای امتیاز مومنتوم قوی، همراه با برچسب صریح «اوربیت/امنیت تأیید نشده»
-- داده Mock برای آزمایش رابط در زمان قطع API
-- مستندات API در مسیر /docs
+## وضعیت دقت و محدودیت تحلیل
+- Pump Score از ۰ تا ۱۰ یک **رتبه‌بندی مومنتوم** مبتنی بر حجم/نقدینگی، نسبت خرید/فروش، تغییر قیمت و نقدینگی است؛ احتمال آماری سود یا پامپ نیست.
+- Orbit Listing Score عمداً نامشخص است تا زمانی که داده تاریخی و معیارهای رسمی پذیرش اوربیت به سیستم متصل شوند. این نسخه ادعای پیش‌بینی احتمال لیست‌شدن نمی‌کند.
+- DexScreener منبع جامع همه توکن‌ها نیست و داده آن به‌تنهایی میم‌کوین بودن یک پروژه را اثبات نمی‌کند.
+- امنیت قرارداد، مالکیت، قفل نقدینگی، تمرکز هولدرها و لیست‌شدن اوربیت در این نسخه تأیید نمی‌شوند.
+- سطوح ورود/حدضرر/تارگت موجود در جزئیات صرفاً محاسبات درصدی نمونه‌اند؛ سیگنال تکنیکال یا توصیه معامله نیستند.
+- در Production مقدار MOCK_DATA_ENABLED=false قرار می‌گیرد تا داده ساختگی هرگز به‌جای بازار واقعی نمایش داده نشود.
 
-## نکته مهم درباره امتیازها
-**Pump Score** یک رتبه‌بندی شفاف مبتنی بر نسبت حجم به نقدینگی، نسبت خرید/فروش، تغییر قیمت و نقدینگی است؛ احتمال آماری سود یا پامپ نیست.
-**Orbit Listing Score در این نسخه عمداً null است** چون دیتاست تاریخی و منبع رسمی قابل‌اتکا برای پذیرش/لیست‌شدن اوربیت متصل نشده است. هیچ عدد ساختگی به‌عنوان احتمال لیست‌شدن نمایش داده نمی‌شود.
-داده‌ی DexScreener نیز به‌تنهایی اثبات نمی‌کند یک توکن واقعاً میم‌کوین است. فهرست فعلی «کاندیدای کشف» است و برای طبقه‌بندی قطعی میم‌کوین، تحلیل متادیتا و منابع اجتماعی باید اضافه شود.
-سطوح ورود/حدضرر/تارگت در API جزئیات صرفاً محاسبات نمونه بر اساس درصد قیمت هستند، نه سطوح تکنیکال حاصل از کندل‌ها؛ در UI باید با همین هشدار نمایش داده شوند.
-امنیت قرارداد، قفل نقدینگی، تمرکز هولدرها و وضعیت لیست‌شدن در اوربیت در این نسخه تأیید نشده‌اند.
-
-## نصب و اجرای لوکال
-نیازمندی: Python 3.11 یا جدیدتر و Git.
-
+## اجرای لوکال
+نیازمند Python 3.11+ و Git:
 ```bash
 git clone https://github.com/salimy8450/arad-crypto-bot.git
 cd arad-crypto-bot
 python -m venv .venv
-# macOS/Linux:
+# Linux/macOS
 source .venv/bin/activate
-# Windows PowerShell:
-# .venv\\Scripts\\Activate.ps1
-pip install -r requirements.txt
+# Windows PowerShell: .venv\\Scripts\\Activate.ps1
+pip install -r requirements-dev.txt
 cp .env.example .env
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
+داشبورد: http://127.0.0.1:8000
+API docs: http://127.0.0.1:8000/docs
+Health: http://127.0.0.1:8000/api/health
 
-سپس داشبورد: http://127.0.0.1:8000
-مستندات API: http://127.0.0.1:8000/docs
-
-### حالت Mock
-در فایل .env مقدار `MOCK_DATA_ENABLED=true` را قرار دهید. اگر API در دسترس نباشد یا داده‌ای برنگرداند، نمونه‌های ساختگی با برچسب MOCK نمایش داده می‌شوند. این نمونه‌ها قیمت واقعی نیستند.
-
-## تنظیم Telegram
-1. در تلگرام با BotFather یک ربات بسازید.
-2. توکن را فقط در متغیر محیطی سرور قرار دهید؛ آن را در GitHub عمومی یا گفتگو منتشر نکنید.
-3. مقدار `TELEGRAM_BOT_TOKEN` و `TELEGRAM_CHAT_ID` را تنظیم کنید.
-4. سرور را مجدداً اجرا کنید.
-5. از `POST /api/alerts/test` برای تست و `POST /api/alerts/scan` برای اسکن هشدارها استفاده کنید.
+برای توسعه و نمایش نمونه‌ها، MOCK_DATA_ENABLED=true بماند. داده‌های نمونه با is_mock مشخص‌اند و هرگز برای تلگرام هشدار نمی‌شوند.
 
 ## متغیرهای محیطی
-| متغیر | پیش‌فرض | کاربرد |
-|---|---:|---|
-| MAX_MARKET_CAP_USD | 500000 | سقف مارکت‌کپ/FDV |
-| MIN_LIQUIDITY_USD | 50000 | حداقل نقدینگی |
-| STRONG_PUMP_SCORE | 7.5 | حد هشدار قوی از 10 |
-| DEXSCREENER_BASE_URL | https://api.dexscreener.com | API بازار |
-| MOCK_DATA_ENABLED | true | فعال‌سازی داده آزمایشی |
-| TELEGRAM_BOT_TOKEN | خالی | توکن ربات |
-| TELEGRAM_CHAT_ID | خالی | شناسه چت |
 
-## API
-- `GET /api/health` وضعیت سرویس
-- `GET /api/tokens?sort=pump_score&chain=solana&q=doge&min_score=5` فهرست و فیلتر
-- `GET /api/tokens/{chain}/{address}` جزئیات
-- `GET /api/search?q=token` جستجو
-- `GET /api/watchlist` مشاهده Watchlist
-- `POST /api/watchlist` افزودن: JSON شامل chain، contract_address، name و symbol
-- `DELETE /api/watchlist/{chain}/{address}` حذف
-- `POST /api/alerts/test` تست تلگرام
-- `POST /api/alerts/scan` اسکن و ارسال هشدارهای قوی
+| نام | توضیح |
+|---|---|
+| MAX_MARKET_CAP_USD | سقف Market Cap/FDV؛ پیش‌فرض 500000 |
+| MIN_LIQUIDITY_USD | حداقل نقدینگی؛ پیش‌فرض 50000 |
+| STRONG_PUMP_SCORE | آستانه هشدار؛ پیش‌فرض 7.5 از 10 |
+| SCAN_INTERVAL_SECONDS | فاصله اسکن خودکار؛ پیش‌فرض 300 ثانیه |
+| DEXSCREENER_BASE_URL | آدرس API |
+| MOCK_DATA_ENABLED | فقط در توسعه true؛ در Production false |
+| ARAD_DB_PATH | مسیر فایل SQLite؛ در Render برابر /var/data/arad_meme_hunter.db |
+| TELEGRAM_BOT_TOKEN | توکن محرمانه BotFather |
+| TELEGRAM_CHAT_ID | شناسه عددی چت مجاز |
+| APP_BASE_URL | آدرس عمومی HTTPS سرویس Render، بدون اسلش انتهایی |
+| TELEGRAM_WEBHOOK_SECRET | راز وب‌هوک؛ در Render با generateValue ساخته می‌شود |
+| ADMIN_API_TOKEN | رمز محافظ endpointهای مدیریتی؛ در Render خودکار ساخته می‌شود |
+
+## ساخت ربات تلگرام
+1. در تلگرام به @BotFather پیام بده.
+2. دستور /newbot را بفرست، نام و username ربات را تعیین کن و توکن را دریافت کن.
+3. توکن را فقط در Environment سرویس Render در کلید TELEGRAM_BOT_TOKEN وارد کن. توکن را در کد، GitHub یا گفتگو قرار نده.
+4. از صفحه ربات Start را بزن تا اجازه دریافت پیام بدهی.
+5. شناسه چت را با روش امن توضیح‌داده‌شده در بخش Telegram در README (پس از اولین پیام، از getUpdates پیش از فعال‌شدن webhook) یا ابزار معتبر خودت به دست بیاور و در TELEGRAM_CHAT_ID قرار بده.
+6. پس از تنظیم APP_BASE_URL و متغیرها، سرویس را redeploy کن. برنامه هنگام startup وب‌هوک HTTPS را با secret تنظیم می‌کند.
+7. در تلگرام /start را بفرست.
+
+دستورات:
+- /start یا /help: راهنما
+- /list: حداکثر ۱۰ کاندیدای زنده با امتیاز بالاتر از آستانه
+- /watchlist: نمایش واچ‌لیست ذخیره‌شده در داشبورد
+- /alert: اجرای اسکن فوری و ارسال هشدارهای تازه
+
+ربات فقط به چتی پاسخ می‌دهد که شناسه آن در TELEGRAM_CHAT_ID تنظیم شده است. هشدار خودکار هر ۵ دقیقه اجرا می‌شود و هر قرارداد/نوع هشدار را فقط یک‌بار ثبت می‌کند. برای ارسال دوباره هشدارهای قبلی، رکوردهای جدول sent_alerts باید آگاهانه مدیریت شوند.
+
+## دیپلوی روی Render با Blueprint
+### پیش‌نیاز
+- حساب GitHub با دسترسی به مخزن
+- حساب Render
+- توکن تلگرام و Chat ID (برای فعال‌سازی تلگرام)
+
+### مراحل
+1. مطمئن شو آخرین commitها در مخزن GitHub هستند.
+2. وارد https://render.com شو و ثبت‌نام/ورود کن.
+3. از Dashboard گزینه **New +** و سپس **Blueprint** را انتخاب کن.
+4. مخزن `salimy8450/arad-crypto-bot` را متصل کن و دسترسی GitHub را تأیید کن.
+5. Render فایل `render.yaml` را می‌خواند؛ سرویس `arad-meme-hunter-pro`، دیسک پایدار ۱ گیگابایتی و متغیرهای محیطی را نشان می‌دهد.
+6. Blueprint را Apply کن. پلن Starter برای Persistent Disk در نظر گرفته شده و ممکن است هزینه داشته باشد؛ پیش از تأیید قیمت جاری Render را بررسی کن.
+7. در Environment سرویس، این دو مقدار را وارد کن:
+   - APP_BASE_URL = آدرس HTTPS سرویس، مانند https://نام-سرویس.onrender.com
+   - TELEGRAM_BOT_TOKEN = توکن BotFather
+   - TELEGRAM_CHAT_ID = شناسه عددی چت خودت
+8. TELEGRAM_WEBHOOK_SECRET و ADMIN_API_TOKEN به‌صورت خودکار توسط Render ساخته می‌شوند؛ مقدار آن‌ها را عمومی نکن.
+9. Save Changes و سپس Deploy latest commit را بزن.
+10. وقتی Deploy موفق شد، آدرس `/api/health` را باز کن. باید status برابر ok و telegram_configured برابر true باشد.
+11. داشبورد را در ریشه دامنه باز کن.
+
+### دیپلوی دستی به‌جای Blueprint
+- New + → Web Service → مخزن GitHub را انتخاب کن.
+- Runtime: Python
+- Build Command: `pip install -r requirements.txt`
+- Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- Health Check Path: `/api/health`
+- یک Persistent Disk با mount path برابر `/var/data` ایجاد کن.
+- Environment Variables را طبق جدول بالا تنظیم کن.
+- مقدار `ARAD_DB_PATH=/var/data/arad_meme_hunter.db` را حتماً تنظیم کن.
+
+**SQLite و چند نمونه:** فقط یک نمونه از این سرویس را اجرا کن؛ SQLite برای چند replica هم‌زمان مناسب نیست. Persistent Disk در پلن‌های دارای پشتیبانی دیسک قابل استفاده است و ممکن است هزینه جداگانه داشته باشد. بدون دیسک پایدار، واچ‌لیست و تاریخچه جلوگیری از هشدار تکراری ممکن است با جایگزینی instance از بین برود.
 
 ## تست
 ```bash
-pip install pytest
+pip install -r requirements-dev.txt
 pytest -q
 ```
+تست دستی پس از اجرا:
+1. GET /api/health باید 200 بدهد.
+2. GET / باید داشبورد را نمایش دهد.
+3. GET /api/tokens در حالت توسعه باید داده MOCK یا LIVE با برچسب درست بدهد.
+4. افزودن/حذف واچ‌لیست را از داشبورد امتحان کن.
+5. /start، /list، /watchlist و /alert را در چت مجاز آزمایش کن.
+6. بررسی کن پیام‌ها عبارت PAPER MODE و وضعیت UNKNOWN/UNVERIFIED را نشان دهند.
+7. یک بار Deploy مجدد انجام بده و ماندگاری Watchlist را بررسی کن.
 
-## دیپلوی روی Render
-1. مخزن را به Render متصل کنید.
-2. یک Web Service از نوع Python بسازید.
-3. Build Command: `pip install -r requirements.txt`
-4. Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-5. متغیرهای محیطی بالا را در بخش Environment وارد کنید.
-6. برای ذخیره پایدار SQLite در Render باید دیسک پایدار متصل و مسیر DB به volume منتقل شود؛ در غیر این صورت Watchlist ممکن است پس از redeploy از بین برود. برای استفاده چندکاربره، PostgreSQL توصیه می‌شود.
+## مشکلات رایج
+- **Application failed to start:** بررسی Build/Runtime Logs؛ مطمئن شو Start Command دقیق است و root directory ریشه مخزن است.
+- **Static directory not found:** سرویس را از ریشه مخزن اجرا کن؛ dashboard باید در همان سطح app باشد.
+- **SQLite readonly / no such directory:** مقدار ARAD_DB_PATH و mount path دیسک را بررسی کن.
+- **Telegram webhook not configured:** APP_BASE_URL باید HTTPS و بدون / پایانی باشد؛ token و secret را بررسی و redeploy کن.
+- **ربات به پیام پاسخ نمی‌دهد:** ابتدا Start را بزن، Chat ID را دقیق بررسی کن، سپس health را برای telegram_configured کنترل کن.
+- **409 Conflict در Telegram:** یک webhook قدیمی یا polling هم‌زمان فعال است؛ این برنامه polling اجرا نمی‌کند، webhook قبلی را پاک کن و سرویس را restart کن.
+- **هیچ توکنی دیده نمی‌شود:** MOCK_DATA_ENABLED=false در Production است؛ خطا یا محدودیت DexScreener را در Render Logs بررسی کن. داده ساختگی در Production عمداً غیرفعال است.
+- **هشدار تکراری ارسال نمی‌شود:** جلوگیری از تکرار در SQLite فعال است؛ رکوردهای sent_alerts را فقط در صورت نیاز آگاهانه پاک کن.
 
-## دیپلوی روی Vercel
-این پروژه FastAPI/SQLite و یک فرایند وب دائمی دارد؛ بنابراین Vercel انتخاب ساده‌ای برای این نسخه نیست. Render یا Railway مناسب‌تر است. برای Vercel باید backend به serverless functions و ذخیره‌سازی به دیتابیس مدیریت‌شده منتقل شود.
+## امنیت
+- هیچ‌وقت توکن BotFather یا ADMIN_API_TOKEN را در GitHub commit نکن.
+- فقط HTTPS را برای webhook به‌کار ببر.
+- Chat ID مجاز در کد بررسی می‌شود.
+- endpointهای مدیریتی /api/alerts/test و /api/alerts/scan با X-Admin-Token محافظت می‌شوند اگر ADMIN_API_TOKEN تنظیم شده باشد.
+- این نسخه احراز هویت کاربران داشبورد ندارد؛ URL عمومی را خصوصی تلقی نکن و داده حساس ذخیره نکن.
+- در صورت افشای Bot Token، از BotFather آن را revoke و تعویض کن.
 
-## محدودیت‌ها و ریسک‌ها
-- فید DexScreener، همه توکن‌های موجود را پوشش نمی‌دهد و توکن‌های جدید یا کم‌نمایش ممکن است از قلم بیفتند.
-- در صورت نبود marketCap از FDV به‌عنوان proxy استفاده می‌شود و در پاسخ مشخص است.
-- API عمومی و rate limit ممکن است باعث تأخیر یا خطا شود.
-- برای استفاده واقعی، اتصال منبع امنیت قرارداد (مانند ارائه‌دهنده معتبر برای هر شبکه)، داده هولدرها، تاریخچه کندل، منبع رسمی اوربیت و پایش اجتماعی ضروری است.
-- هیچ امتیازی تضمین‌کننده رشد، لیست‌شدن یا سود نیست. میم‌کوین‌ها می‌توانند تمام ارزش خود را از دست بدهند.
+## Endpointها
+- GET /api/health
+- GET /api/tokens
+- GET /api/tokens/{chain}/{address}
+- GET /api/search?q=...
+- GET /api/watchlist
+- POST /api/watchlist
+- DELETE /api/watchlist/{chain}/{address}
+- POST /api/alerts/test (Header: X-Admin-Token)
+- POST /api/alerts/scan (Header: X-Admin-Token)
+- POST /telegram/webhook (فقط برای Telegram)
 
-## وضعیت
-این نسخه یک MVP اجرایی با داشبورد، API، داده آزمایشی، Watchlist و هشدار تلگرام است؛ اما هنوز محصول کاملِ اعتبارسنجی‌شده برای پیش‌بینی لیست‌شدن اوربیت یا ارزیابی امنیت قرارداد نیست.
+## وضعیت تحویل
+این commit کد Webhook تلگرام، دستورات، اسکن خودکار، ذخیره‌سازی قابل تنظیم برای دیسک Render، Blueprint و راهنمای تست/دیپلوی را آماده می‌کند. انتشار واقعی روی Render و اتصال به BotFather همچنان نیازمند ورود مالک حساب و واردکردن Secretها است. این نرم‌افزار ابزار غربالگری است، نه تضمین لیست‌شدن یا سود؛ میم‌کوین‌ها ریسک از دست رفتن کامل سرمایه دارند.
