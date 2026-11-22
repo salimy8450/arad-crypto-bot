@@ -135,7 +135,7 @@ async def alert_scan():
         raise HTTPException(400,"Telegram is not configured")
     rows=await get_rows(True); sent=[]
     for r in rows:
-        if r["pump_score"]<cfg.strong_pump_score or alert_seen(r["chain"],r["contract_address"]):
+        if r.get("is_mock") or r["pump_score"]<cfg.strong_pump_score or alert_seen(r["chain"],r["contract_address"]):
             continue
         msg=(f"⚡ ARAD STRONG MOMENTUM WATCH\\n{r['name']} ({r['symbol']})\\n"
              f"Network: {r['chain']}\\nPump score: {r['pump_score']}/10\\n"
