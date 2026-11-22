@@ -61,7 +61,11 @@ async def alert_scan():
     rows=await scanner.scan(True); sent=[]
     for r in rows:
         s=score_market(as_pair(r))
-        if s.pump_score>=cfg.strong_pump_score and cfg.telegram_bot_token and cfg.telegram_chat_id:
+        # Strict gate: market momentum alone is not enough for a pre-listing alert.
+        # Until verified security + official Ourbit evidence providers are connected, suppress alerts.
+        security_verified_safe = False
+        official_ourbit_evidence = False
+        if s.pump_score>=cfg.strong_pump_score and security_verified_safe and official_ourbit_evidence and cfg.telegram_bot_token and cfg.telegram_chat_id:
             msg=f"ARAD MEME HUNTER | STRONG MARKET WATCH\\n{r['name']} ({r['symbol']})\\nChain: {r['chain']}\\nPump: {s.pump_score}/10\\nOurbit: NOT VERIFIED\\nLiquidity: ${r['liquidity_usd']:,.0f}\\nContract: {r['contract_address']}\\nPAPER MODE - no trade"
             if await send_telegram(cfg.telegram_bot_token,cfg.telegram_chat_id,msg): sent.append(r['contract_address'])
     return {'alerts_sent':len(sent),'contracts':sent,'paper_mode':True}
