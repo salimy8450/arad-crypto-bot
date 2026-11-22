@@ -2,15 +2,36 @@ services:
   - type: web
     name: arad-meme-hunter-pro
     runtime: python
+    plan: starter
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
+    disk:
+      name: arad-meme-hunter-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: ARAD_DB_PATH
+        value: /var/data/arad_meme_hunter.db
       - key: MOCK_DATA_ENABLED
-        value: true
+        value: false
       - key: MAX_MARKET_CAP_USD
         value: 500000
       - key: MIN_LIQUIDITY_USD
         value: 50000
       - key: STRONG_PUMP_SCORE
         value: 7.5
+      - key: SCAN_INTERVAL_SECONDS
+        value: 300
+      - key: APP_BASE_URL
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: TELEGRAM_WEBHOOK_SECRET
+        generateValue: true
+      - key: ADMIN_API_TOKEN
+        generateValue: true
