@@ -22,7 +22,7 @@
 <select id="chain"><option value="">همه شبکه‌ها</option><option value="solana">Solana</option><option value="base">Base</option><option value="bsc">BSC</option><option value="ethereum">Ethereum</option></select>
 <select id="sort"><option value="pump_score">امتیاز مومنتوم</option><option value="volume">حجم ۲۴ساعت</option><option value="market_cap">مارکت‌کپ</option><option value="liquidity">نقدینگی</option><option value="change">تغییر قیمت</option></select>
 <select id="minscore"><option value="0">همه امتیازها</option><option value="5">امتیاز بالای ۵</option><option value="7.5">فقط قوی‌ها ۷.۵+</option></select>
-<button onclick="load(true)">↻ اسکن مجدد</button>
+<button onclick="load(true)">↻ اسکن مجدد</button><button class="secondary" onclick="sendAlerts()">ارسال هشدارهای قوی تلگرام</button>
 </div>
 <div class="tablewrap"><table><thead><tr><th>توکن</th><th>شبکه</th><th>مارکت‌کپ / FDV</th><th>نقدینگی</th><th>حجم ۲۴ساعت</th><th>تغییر</th><th>پامپ</th><th>اوربیت</th><th>عملیات</th></tr></thead><tbody id="rows"><tr><td colspan="9">در حال دریافت داده…</td></tr></tbody></table></div>
 </section>
@@ -59,7 +59,7 @@ async function detail(chain,address){
  }catch(e){document.getElementById('detailbody').textContent='خطا: '+e.message}
 }
 function closeDetail(){document.getElementById('modal').classList.remove('show')}
-async function addWatch(chain,address,name,symbol){
+async function sendAlerts(){\n try{const r=await fetch('/api/alerts/scan',{method:'POST'});const d=await r.json();if(!r.ok)throw Error(d.detail||'خطا');document.getElementById('status').textContent='هشدارهای ارسال‌شده: '+d.alerts_sent+' · فقط داده زنده؛ موارد آزمایشی ارسال نمی‌شوند.';}catch(e){document.getElementById('status').textContent='ارسال هشدار ناموفق: '+e.message;}\n}\nasync function addWatch(chain,address,name,symbol){
  const body={chain:decodeURIComponent(chain),contract_address:decodeURIComponent(address),name:decodeURIComponent(name),symbol:decodeURIComponent(symbol)};
  const r=await fetch('/api/watchlist',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
  if(r.ok){document.getElementById('status').textContent='به واچ‌لیست اضافه شد.';loadWatch()}else alert('ذخیره انجام نشد');
