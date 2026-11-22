@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ARAD MEME HUNTER PRO</title>
+<style>
+:root{color-scheme:dark;--bg:#080d18;--panel:#111a2b;--line:#24334a;--muted:#93a4bd;--green:#31d49a;--yellow:#f4c45e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#e9f0fb;font:14px system-ui}main{max-width:1440px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:22px;margin:0}.sub,.k,.foot{color:var(--muted)}.pill{border:1px solid #26634f;color:var(--green);padding:7px 11px;border-radius:20px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}.k{font-size:12px}.v{font-size:23px;font-weight:700;margin-top:8px}.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}input,select,button{background:#0b1424;color:#e9f0fb;border:1px solid var(--line);padding:10px 12px;border-radius:9px}button{cursor:pointer;background:#173d36}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:850px}th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-weight:500}.good{color:var(--green)}.warn{color:var(--yellow)}.foot{margin-top:15px;font-size:12px}@media(max-width:700px){main{padding:14px}.cards{grid-template-columns:repeat(2,1fr)}h1{font-size:18px}}
+</style></head><body><main>
+<div class="top"><div><h1>⚡ ARAD MEME HUNTER PRO</h1><div class="sub">Pre-listing discovery · Solana / Base / BSC / Ethereum</div></div><span class="pill">● PAPER MODE · READ ONLY</span></div>
+<div class="cards"><div class="card"><div class="k">Qualified tokens</div><div class="v" id="count">—</div></div><div class="card"><div class="k">Strong market candidates</div><div class="v good" id="strong">—</div></div><div class="card"><div class="k">Market cap ceiling</div><div class="v">$500K</div></div><div class="card"><div class="k">Minimum liquidity</div><div class="v">$50K</div></div></div>
+<div class="panel"><div class="controls"><input id="search" placeholder="Search name, ticker or contract" style="flex:1;min-width:210px"><select id="chain"><option value="">All networks</option><option value="solana">Solana</option><option value="base">Base</option><option value="bsc">BSC</option><option value="ethereum">Ethereum</option></select><select id="sort"><option value="pump_score">Pump score</option><option value="volume">24h volume</option><option value="market_cap">Market cap</option></select><button onclick="load(true)">↻ Refresh scan</button></div>
+<div class="tablewrap"><table><thead><tr><th>Token</th><th>Network</th><th>Market cap / FDV</th><th>Liquidity</th><th>24h volume</th><th>24h change</th><th>Pump</th><th>Ourbit</th><th>Security</th></tr></thead><tbody id="rows"><tr><td colspan="9">Loading…</td></tr></tbody></table></div><div class="foot" id="status">DexScreener data. Holders, security and exchange listing require independent verification.</div></div></main>
+<script>
+let all=[];
+const money=n=>n==null?'—':'$'+Number(n).toLocaleString(undefined,{maximumFractionDigits:0});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function load(force=false){
+ let st=document.getElementById('status');st.textContent='Scanning latest token profiles…';
+ try{
+  let q=new URLSearchParams({sort:document.getElementById('sort').value,force:String(force)});
+  let c=document.getElementById('chain').value;if(c)q.set('chain',c);
+  let r=await fetch('/api/tokens?'+q);if(!r.ok)throw Error('API '+r.status);
+  let d=await r.json();all=d.tokens||[];render();
+  document.getElementById('count').textContent=d.count;
+  document.getElementById('strong').textContent=all.filter(x=>x.pump_score>=7.5).length;
+  st.textContent='Updated '+new Date().toLocaleTimeString()+' · '+d.count+' tokens passed filters. Listing/security unverified.';
+ }catch(e){st.textContent='Data unavailable: '+e.message}
+}
+function render(){
+ let q=document.getElementById('search').value.toLowerCase();
+ let rows=all.filter(x=>[x.name,x.symbol,x.contract_address].some(v=>(v||'').toLowerCase().includes(q)));
+ document.getElementById('rows').innerHTML=rows.map(x=>'<tr><td><b>'+esc(x.name)+'</b> '+esc(x.symbol)+'<br><small>'+esc(x.contract_address.slice(0,9))+'…</small></td><td>'+esc(x.chain)+'</td><td>'+money(x.market_cap_usd||x.fdv_usd)+(x.cap_metric==='fdv_proxy'?' (FDV proxy)':'')+'</td><td>'+money(x.liquidity_usd)+'</td><td>'+money(x.volume_24h_usd)+'</td><td>'+(x.change_24h_pct==null?'—':Number(x.change_24h_pct).toFixed(1)+'%')+'</td><td class="good">'+x.pump_score+'/10</td><td class="warn">Unverified</td><td class="warn">Unverified</td></tr>').join('')||'<tr><td colspan="9">No matching tokens.</td></tr>';
+}
+document.getElementById('search').addEventListener('input',render);
+document.getElementById('chain').addEventListener('change',()=>load());
+document.getElementById('sort').addEventListener('change',()=>load());
+load();setInterval(()=>load(),90000);
+</script></body></html>
