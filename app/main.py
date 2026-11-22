@@ -74,13 +74,13 @@ async def send_strong_alerts():
         if alert_seen(r["chain"], r["contract_address"]):
             continue
         msg = (
-            f"⚡ ARAD MEME HUNTER — STRONG MOMENTUM\\n"
-            f"{r['name']} ({r['symbol']})\\n"
-            f"Network: {r['chain']} | Pump score: {r['pump_score']}/10\\n"
-            f"Market cap/FDV: ${float(r.get('market_cap_usd') or r.get('fdv_usd') or 0):,.0f}\\n"
-            f"Liquidity: ${float(r.get('liquidity_usd') or 0):,.0f}\\n"
-            f"Orbit listing: UNKNOWN | Contract security: UNVERIFIED\\n"
-            f"Contract: {r['contract_address']}\\n"
+            f"⚡ ARAD MEME HUNTER — STRONG MOMENTUM\n"
+            f"{r['name']} ({r['symbol']})\n"
+            f"Network: {r['chain']} | Pump score: {r['pump_score']}/10\n"
+            f"Market cap/FDV: ${float(r.get('market_cap_usd') or r.get('fdv_usd') or 0):,.0f}\n"
+            f"Liquidity: ${float(r.get('liquidity_usd') or 0):,.0f}\n"
+            f"Orbit listing: UNKNOWN | Contract security: UNVERIFIED\n"
+            f"Contract: {r['contract_address']}\n"
             f"Data: DexScreener | PAPER MODE — no trade executed."
         )
         try:
@@ -110,21 +110,21 @@ async def handle_telegram_update(update: dict):
     text = (message.get("text") or "").strip()
     command = text.split()[0].split("@")[0].lower() if text else ""
     if command in {"/start", "/help"}:
-        reply = ("سلام! ربات ARAD MEME HUNTER فعال است.\\n"
-                 "/list — نمایش کاندیداهای قوی\\n"
-                 "/watchlist — نمایش واچ‌لیست\\n"
-                 "/alert — اجرای اسکن هشدار فوری\\n"
+        reply = ("سلام! ربات ARAD MEME HUNTER فعال است.\n"
+                 "/list — نمایش کاندیداهای قوی\n"
+                 "/watchlist — نمایش واچ‌لیست\n"
+                 "/alert — اجرای اسکن هشدار فوری\n"
                  "حالت PAPER است؛ هیچ معامله‌ای انجام نمی‌شود.")
     elif command == "/list":
         rows = await get_rows()
         rows = [r for r in rows if not r.get("is_mock") and r["pump_score"] >= cfg.strong_pump_score]
         rows = sorted(rows, key=lambda x: x["pump_score"], reverse=True)[:10]
-        reply = "کاندیداهای قوی فعلی:\\n" + ("\\n".join(
+        reply = "کاندیداهای قوی فعلی:\n" + ("\n".join(
             f"• {r['symbol']} ({r['chain']}) — {r['pump_score']}/10 — ${float(r.get('market_cap_usd') or r.get('fdv_usd') or 0):,.0f}"
             for r in rows) if rows else "فعلاً کاندیدای زنده‌ای از آستانه عبور نکرده است.")
     elif command == "/watchlist":
         items = list_watchlist()[:20]
-        reply = "واچ‌لیست:\\n" + ("\\n".join(
+        reply = "واچ‌لیست:\n" + ("\n".join(
             f"• {x.get('symbol') or x.get('name') or 'Token'} — {x['chain']} — {x['contract_address']}"
             for x in items) if items else "واچ‌لیست خالی است.")
     elif command == "/alert":
