@@ -1,0 +1,50 @@
+name: ARAD Meme Hunter (Free GitHub)
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: arad-meme-hunter-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install scanner dependency
+        run: pip install "httpx>=0.27,<1"
+
+      - name: Scan live tokens and send Telegram alerts
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          MAX_MARKET_CAP_USD: "500000"
+          MIN_LIQUIDITY_USD: "50000"
+          STRONG_PUMP_SCORE: "7.5"
+        run: python scripts/github_actions_scan.py
+
+      - name: Save public dashboard data and alert deduplication state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/tokens.json data/alert_state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update ARAD market snapshot"
+            git push
+          fi
