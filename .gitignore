@@ -1,0 +1,1 @@
+.env\n.venv/\n__pycache__/\n.pytest_cache/\n*.py[cod]\narad_meme_hunter.db\n
