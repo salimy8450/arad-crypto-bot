@@ -1,36 +1,81 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ARAD MEME HUNTER PRO</title>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ARAD MEME HUNTER PRO</title>
 <style>
-:root{color-scheme:dark;--bg:#080d18;--panel:#111a2b;--line:#24334a;--muted:#93a4bd;--green:#31d49a;--yellow:#f4c45e}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#e9f0fb;font:14px system-ui}main{max-width:1440px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:22px;margin:0}.sub,.k,.foot{color:var(--muted)}.pill{border:1px solid #26634f;color:var(--green);padding:7px 11px;border-radius:20px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}.k{font-size:12px}.v{font-size:23px;font-weight:700;margin-top:8px}.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}input,select,button{background:#0b1424;color:#e9f0fb;border:1px solid var(--line);padding:10px 12px;border-radius:9px}button{cursor:pointer;background:#173d36}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:850px}th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-weight:500}.good{color:var(--green)}.warn{color:var(--yellow)}.foot{margin-top:15px;font-size:12px}@media(max-width:700px){main{padding:14px}.cards{grid-template-columns:repeat(2,1fr)}h1{font-size:18px}}
-</style></head><body><main>
-<div class="top"><div><h1>⚡ ARAD MEME HUNTER PRO</h1><div class="sub">Pre-listing discovery · Solana / Base / BSC / Ethereum</div></div><span class="pill">● PAPER MODE · READ ONLY</span></div>
-<div class="cards"><div class="card"><div class="k">Qualified tokens</div><div class="v" id="count">—</div></div><div class="card"><div class="k">Strong market candidates</div><div class="v good" id="strong">—</div></div><div class="card"><div class="k">Market cap ceiling</div><div class="v">$500K</div></div><div class="card"><div class="k">Minimum liquidity</div><div class="v">$50K</div></div></div>
-<div class="panel"><div class="controls"><input id="search" placeholder="Search name, ticker or contract" style="flex:1;min-width:210px"><select id="chain"><option value="">All networks</option><option value="solana">Solana</option><option value="base">Base</option><option value="bsc">BSC</option><option value="ethereum">Ethereum</option></select><select id="sort"><option value="pump_score">Pump score</option><option value="volume">24h volume</option><option value="market_cap">Market cap</option></select><button onclick="load(true)">↻ Refresh scan</button></div>
-<div class="tablewrap"><table><thead><tr><th>Token</th><th>Network</th><th>Market cap / FDV</th><th>Liquidity</th><th>24h volume</th><th>24h change</th><th>Pump</th><th>Ourbit</th><th>Security</th></tr></thead><tbody id="rows"><tr><td colspan="9">Loading…</td></tr></tbody></table></div><div class="foot" id="status">DexScreener data. Holders, security and exchange listing require independent verification.</div></div></main>
+:root{color-scheme:dark;--bg:#080d18;--panel:#111a2b;--line:#26364e;--muted:#94a6c0;--green:#35d6a0;--amber:#f3c66b;--red:#ff7777;--blue:#82aaff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% -10%,#14233b,transparent 38%),var(--bg);color:#eaf1fc;font:14px system-ui}main{max-width:1450px;margin:auto;padding:22px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:23px;margin:0}.sub,.muted,.foot{color:var(--muted)}.sub{margin-top:5px}.pill{border:1px solid #26634f;color:var(--green);padding:7px 12px;border-radius:30px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0}.card,.panel{background:linear-gradient(145deg,#121d30,#0f1727);border:1px solid var(--line);border-radius:15px;padding:16px}.k{font-size:12px;color:var(--muted)}.v{font-size:24px;font-weight:750;margin-top:8px}.green{color:var(--green)}.amber{color:var(--amber)}.controls{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}input,select,button{background:#0a1424;color:#eaf1fc;border:1px solid var(--line);padding:10px 12px;border-radius:9px;font:inherit}input{min-width:190px;flex:1}button{cursor:pointer;background:#173d36;border-color:#286451}button.secondary{background:#15243a;border-color:#334965}button.danger{background:#3b2028;border-color:#713c49}.tabs{display:flex;gap:8px;margin:18px 0}.tab{background:#101b2d}.tab.active{background:#1b4a3e;border-color:#28785e}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:900px}th,td{text-align:right;padding:12px 10px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-weight:550}.token{font-weight:700}.tiny{font-size:11px;color:var(--muted);direction:ltr;display:inline-block}.score{font-weight:800;color:var(--green)}.unverified{color:var(--amber)}.actions{display:flex;gap:6px}.actions button{padding:7px 9px;font-size:12px}.foot{font-size:12px;line-height:1.8;margin-top:14px}.empty{padding:26px;text-align:center;color:var(--muted)}.modal{display:none;position:fixed;inset:0;background:#000b;z-index:5;padding:16px;overflow:auto}.modal.show{display:block}.dialog{max-width:760px;margin:5vh auto;background:#111b2d;border:1px solid var(--line);border-radius:16px;padding:20px}.dialoghead{display:flex;justify-content:space-between;align-items:center;gap:12px}.detailgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.detailbox{background:#0b1525;padding:12px;border-radius:10px}.detailbox b{display:block;margin-top:6px}.reason{padding:8px 0;border-bottom:1px solid var(--line)}.risk{color:#ffb2a6;line-height:1.8}.tag{font-size:11px;color:var(--blue)}@media(max-width:720px){main{padding:13px}.cards{grid-template-columns:repeat(2,1fr)}h1{font-size:18px}.detailgrid{grid-template-columns:repeat(2,1fr)}.dialog{margin:2vh auto;padding:14px}}
+</style></head>
+<body><main>
+<header class="top"><div><h1>⚡ ARAD MEME HUNTER PRO</h1><div class="sub">کشف و پایش میم‌کوین‌ها · Solana / Base / BSC / Ethereum</div></div><span class="pill">● PAPER MODE · فقط خواندنی</span></header>
+<section class="cards">
+<div class="card"><div class="k">توکن‌های واجد فیلتر</div><div class="v" id="count">—</div></div>
+<div class="card"><div class="k">کاندیداهای مومنتوم قوی</div><div class="v green" id="strong">—</div></div>
+<div class="card"><div class="k">حداکثر مارکت‌کپ / FDV</div><div class="v">$500K</div></div>
+<div class="card"><div class="k">حداقل نقدینگی</div><div class="v">$50K</div></div>
+</section>
+<div class="tabs"><button class="tab active" id="tab-market" onclick="showTab('market')">بازار</button><button class="tab" id="tab-watch" onclick="showTab('watch')">واچ‌لیست من</button></div>
+<section class="panel" id="market">
+<div class="controls">
+<input id="search" placeholder="جستجو: نام، نماد یا آدرس قرارداد">
+<select id="chain"><option value="">همه شبکه‌ها</option><option value="solana">Solana</option><option value="base">Base</option><option value="bsc">BSC</option><option value="ethereum">Ethereum</option></select>
+<select id="sort"><option value="pump_score">امتیاز مومنتوم</option><option value="volume">حجم ۲۴ساعت</option><option value="market_cap">مارکت‌کپ</option><option value="liquidity">نقدینگی</option><option value="change">تغییر قیمت</option></select>
+<select id="minscore"><option value="0">همه امتیازها</option><option value="5">امتیاز بالای ۵</option><option value="7.5">فقط قوی‌ها ۷.۵+</option></select>
+<button onclick="load(true)">↻ اسکن مجدد</button>
+</div>
+<div class="tablewrap"><table><thead><tr><th>توکن</th><th>شبکه</th><th>مارکت‌کپ / FDV</th><th>نقدینگی</th><th>حجم ۲۴ساعت</th><th>تغییر</th><th>پامپ</th><th>اوربیت</th><th>عملیات</th></tr></thead><tbody id="rows"><tr><td colspan="9">در حال دریافت داده…</td></tr></tbody></table></div>
+</section>
+<section class="panel" id="watch" style="display:none"><div class="tablewrap"><table><thead><tr><th>توکن</th><th>شبکه</th><th>آدرس قرارداد</th><th>افزوده‌شده</th><th>عملیات</th></tr></thead><tbody id="watchrows"></tbody></table></div></section>
+<div class="foot" id="status">داده بازار از DexScreener دریافت می‌شود. امتیاز پامپ رتبه‌بندی مومنتوم است، نه احتمال سود. لیست‌شدن اوربیت و امنیت قرارداد فعلاً تأیید نشده‌اند. موارد MOCK ساختگی‌اند.</div>
+</main>
+<div class="modal" id="modal" onclick="if(event.target.id==='modal')closeDetail()"><div class="dialog"><div class="dialoghead"><div><h2 id="dtitle">جزئیات توکن</h2><div class="muted" id="dsub"></div></div><button class="secondary" onclick="closeDetail()">بستن ✕</button></div><div id="detailbody">در حال بارگذاری…</div></div></div>
 <script>
 let all=[];
-const money=n=>n==null?'—':'$'+Number(n).toLocaleString(undefined,{maximumFractionDigits:0});
+const money=n=>n==null?'—':'$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function load(force=false){
- let st=document.getElementById('status');st.textContent='Scanning latest token profiles…';
+ const st=document.getElementById('status');st.textContent='در حال اسکن توکن‌ها…';
  try{
-  let q=new URLSearchParams({sort:document.getElementById('sort').value,force:String(force)});
-  let c=document.getElementById('chain').value;if(c)q.set('chain',c);
-  let r=await fetch('/api/tokens?'+q);if(!r.ok)throw Error('API '+r.status);
-  let d=await r.json();all=d.tokens||[];render();
-  document.getElementById('count').textContent=d.count;
+  const p=new URLSearchParams({sort:document.getElementById('sort').value,force:String(force),min_score:document.getElementById('minscore').value});
+  if(document.getElementById('chain').value)p.set('chain',document.getElementById('chain').value);
+  if(document.getElementById('search').value)p.set('q',document.getElementById('search').value);
+  const r=await fetch('/api/tokens?'+p);if(!r.ok)throw Error('API '+r.status);
+  const d=await r.json();all=d.tokens||[];render();document.getElementById('count').textContent=d.count;
   document.getElementById('strong').textContent=all.filter(x=>x.pump_score>=7.5).length;
-  st.textContent='Updated '+new Date().toLocaleTimeString()+' · '+d.count+' tokens passed filters. Listing/security unverified.';
- }catch(e){st.textContent='Data unavailable: '+e.message}
+  st.textContent=(d.data_mode==='MOCK'?'حالت آزمایشی MOCK':'داده زنده از DexScreener')+' · بروزرسانی '+new Date().toLocaleTimeString()+' · اوربیت/امنیت تأیید نشده';
+ }catch(e){st.textContent='دریافت داده ناموفق بود: '+e.message}
 }
 function render(){
- let q=document.getElementById('search').value.toLowerCase();
- let rows=all.filter(x=>[x.name,x.symbol,x.contract_address].some(v=>(v||'').toLowerCase().includes(q)));
- document.getElementById('rows').innerHTML=rows.map(x=>'<tr><td><b>'+esc(x.name)+'</b> '+esc(x.symbol)+'<br><small>'+esc(x.contract_address.slice(0,9))+'…</small></td><td>'+esc(x.chain)+'</td><td>'+money(x.market_cap_usd||x.fdv_usd)+(x.cap_metric==='fdv_proxy'?' (FDV proxy)':'')+'</td><td>'+money(x.liquidity_usd)+'</td><td>'+money(x.volume_24h_usd)+'</td><td>'+(x.change_24h_pct==null?'—':Number(x.change_24h_pct).toFixed(1)+'%')+'</td><td class="good">'+x.pump_score+'/10</td><td class="warn">Unverified</td><td class="warn">Unverified</td></tr>').join('')||'<tr><td colspan="9">No matching tokens.</td></tr>';
+ document.getElementById('rows').innerHTML=all.map(x=>'<tr><td><span class="token">'+esc(x.name)+' ('+esc(x.symbol)+')</span><br><span class="tiny">'+esc(x.contract_address)+'</span>'+(x.is_mock?'<br><span class="tag">MOCK DATA</span>':'')+'</td><td>'+esc(x.chain)+'</td><td>'+money(x.market_cap_usd||x.fdv_usd)+(x.cap_metric==='fdv_proxy'?' <small>(FDV)</small>':'')+'</td><td>'+money(x.liquidity_usd)+'</td><td>'+money(x.volume_24h_usd)+'</td><td>'+(x.change_24h_pct==null?'—':Number(x.change_24h_pct).toFixed(1)+'%')+'</td><td class="score">'+x.pump_score+'/10</td><td class="unverified">تأییدنشده</td><td><div class="actions"><button class="secondary" onclick="detail(\''+encodeURIComponent(x.chain)+'\',\''+encodeURIComponent(x.contract_address)+'\')">جزئیات</button><button onclick="addWatch(\''+encodeURIComponent(x.chain)+'\',\''+encodeURIComponent(x.contract_address)+'\',\''+encodeURIComponent(x.name)+'\',\''+encodeURIComponent(x.symbol)+'\')">☆</button></div></td></tr>').join('')||'<tr><td colspan="9" class="empty">موردی با این فیلتر پیدا نشد.</td></tr>';
 }
-document.getElementById('search').addEventListener('input',render);
-document.getElementById('chain').addEventListener('change',()=>load());
-document.getElementById('sort').addEventListener('change',()=>load());
+async function detail(chain,address){
+ document.getElementById('modal').classList.add('show');document.getElementById('detailbody').textContent='در حال دریافت…';
+ try{
+  const d=await (await fetch('/api/tokens/'+chain+'/'+address)).json();
+  document.getElementById('dtitle').textContent=d.name+' ('+d.symbol+')';document.getElementById('dsub').textContent=d.chain+' · '+d.contract_address;
+  const a=d.analysis;
+  document.getElementById('detailbody').innerHTML='<div class="detailgrid">'+[['قیمت',d.price_usd?'$'+d.price_usd:'—'],['امتیاز پامپ',d.pump_score+'/10'],['احتمال لیست اوربیت','نامشخص'],['مارکت‌کپ',money(d.market_cap_usd||d.fdv_usd)],['نقدینگی',money(d.liquidity_usd)],['حجم ۲۴ساعت',money(d.volume_24h_usd)],['مرجع ورود',a.entry_reference??'—'],['حدضرر نمونه',a.stop_reference??'—'],['تارگت‌های نمونه',(a.targets||[]).join(' / ')||'—']].map(v=>'<div class="detailbox"><span class="muted">'+v[0]+'</span><b>'+esc(v[1])+'</b></div>').join('')+'</div><h3>دلایل امتیاز</h3>'+(d.reasons||[]).map(v=>'<div class="reason">• '+esc(v)+'</div>').join('')+'<h3>ریسک‌ها و موارد تأییدنشده</h3><div class="risk">'+(a.risk_notes||[]).map(esc).join('<br>')+'</div><p class="foot">'+esc(a.method||'')+'</p><p><a target="_blank" rel="noopener" href="'+esc(d.dex_url||'https://dexscreener.com/')+'">بازکردن جفت‌ارز در DexScreener ↗</a></p>';
+ }catch(e){document.getElementById('detailbody').textContent='خطا: '+e.message}
+}
+function closeDetail(){document.getElementById('modal').classList.remove('show')}
+async function addWatch(chain,address,name,symbol){
+ const body={chain:decodeURIComponent(chain),contract_address:decodeURIComponent(address),name:decodeURIComponent(name),symbol:decodeURIComponent(symbol)};
+ const r=await fetch('/api/watchlist',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+ if(r.ok){document.getElementById('status').textContent='به واچ‌لیست اضافه شد.';loadWatch()}else alert('ذخیره انجام نشد');
+}
+async function loadWatch(){
+ const r=await fetch('/api/watchlist');const d=await r.json();
+ document.getElementById('watchrows').innerHTML=(d.items||[]).map(x=>'<tr><td>'+esc(x.name)+' ('+esc(x.symbol)+')</td><td>'+esc(x.chain)+'</td><td class="tiny">'+esc(x.contract_address)+'</td><td>'+esc(x.added_at)+'</td><td><button class="danger" onclick="removeWatch(\''+encodeURIComponent(x.chain)+'\',\''+encodeURIComponent(x.contract_address)+'\')">حذف</button></td></tr>').join('')||'<tr><td colspan="5" class="empty">واچ‌لیست خالی است.</td></tr>';
+}
+async function removeWatch(chain,address){
+ await fetch('/api/watchlist/'+chain+'/'+address,{method:'DELETE'});loadWatch();
+}
+function showTab(which){
+ document.getElementById('market').style.display=which==='market'?'block':'none';document.getElementById('watch').style.display=which==='watch'?'block':'none';
+ document.getElementById('tab-market').classList.toggle('active',which==='market');document.getElementById('tab-watch').classList.toggle('active',which==='watch');
+ if(which==='watch')loadWatch();
+}
+['search','chain','sort','minscore'].forEach(id=>document.getElementById(id).addEventListener(id==='search'?'input':'change',()=>load()));
 load();setInterval(()=>load(),90000);
 </script></body></html>
