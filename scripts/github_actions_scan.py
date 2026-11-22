@@ -1,9 +1,13 @@
 import asyncio
 import json
 import os
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+import sys
+
+# Make the repository root importable when this file is executed as a script.
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 import httpx
 from app.scanner import DexScanner
