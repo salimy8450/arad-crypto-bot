@@ -39,11 +39,17 @@ jobs:
           STRONG_PUMP_SCORE: "7.5"
         run: python scripts/github_actions_scan.py
 
-      - name: Save public dashboard data and alert deduplication state
+      - name: Monitor official Ourbit listing announcements
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/ourbit_listing_monitor.py
+
+      - name: Save dashboard and alert deduplication state
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/tokens.json data/alert_state.json
+          git add docs/data/tokens.json data/alert_state.json data/ourbit_listing_state.json
           if ! git diff --cached --quiet; then
             git commit -m "Update ARAD market snapshot"
             git push
