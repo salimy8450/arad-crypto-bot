@@ -79,11 +79,15 @@ async def main():
         parser.feed(response.text)
         parser.close()
 
+        first_run = not STATE.exists()
         sent = read_state()
         fresh = []
         for post in parser.posts:
             post_id = post["id"]
             text = re.sub(r"\s+", " ", " ".join(post["text"])).strip()
+            if post_id and first_run:
+                sent.add(post_id)
+                continue
             if not post_id or post_id in sent or not is_listing(text):
                 continue
             official_links = [u for u in post["links"] if "ourbit.com/" in u]
